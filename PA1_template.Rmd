@@ -1,25 +1,55 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
+author: "pszjmb1"
 output: 
   html_document:
     keep_md: true
 ---
 
+# Utility Functions
+```{r utility}
+timeprint <- function(s){
+  # Prints out the given string with a datestamp
+  #
+  # args:
+  #  s: The string to print
+  s <- paste(format(Sys.time(), "%a %b %d %H:%M:%S %Y"),s,sep="> ")
+  print(s)
+}
+```
+# Load and preprocess the data
+```{r getData, cache=TRUE}
+if(!file.exists("data")){dir.create("data")}
 
-## Loading and preprocessing the data
+## Download data
+fileURL <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
+if(!file.exists("./data/activity.zip")){
+    timeprint("Downloading data...")
+    download.file(fileURL, destfile = './data/activity.zip', method="curl")
+    outputMsg <- paste("Raw data downloaded from:", fileURL," ", date())    
+    write(outputMsg, file = paste("./data/", "activity.zip", ".download.info.md", sep=""))
+    unzip('./data/activity.zip',exdir='./data')
+} else{
+  con <- file("./data/activity.zip.download.info.md", "rt")  
+  outputMsg <- readLines(con, 1)
+}
+timeprint(outputMsg)
+activityData <- read.csv2("./data/activity.csv", sep=",", header=TRUE)
+str(activityData)
+```
+
+# Mean total number of steps taken per day
+```{r calcMean, cache=TRUE}
+mean(activityData$steps, na.rm=TRUE)
+```
+
+
+# What is the average daily activity pattern?
 
 
 
-## What is mean total number of steps taken per day?
+# Inputing missing values
 
 
 
-## What is the average daily activity pattern?
-
-
-
-## Imputing missing values
-
-
-
-## Are there differences in activity patterns between weekdays and weekends?
+# Are there differences in activity patterns between weekdays and weekends?
