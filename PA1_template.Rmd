@@ -38,9 +38,21 @@ activityData <- read.csv2("./data/activity.csv", sep=",", header=TRUE)
 str(activityData)
 ```
 
-# Mean total number of steps taken per day
-```{r calcMean, cache=TRUE}
-mean(activityData$steps, na.rm=TRUE)
+# Show the mean total number of steps taken per day
+## Calculate the total number of steps taken per day
+```{r calcStepsPerDay, cache=TRUE}
+numberOfStepsPerDay <- tapply(activityData$steps, activityData$date, sum, na.rm = TRUE)
+```
+
+## Histogram of the total number of steps taken each day
+```{r doHistNumSteps, cache=TRUE}
+hist(numberOfStepsPerDay)
+```
+
+## Calculate and report the mean and median of the total number of steps taken per day
+```{r calcMeanMedianNumSteps, cache=TRUE}
+mean(numberOfStepsPerDay)
+median(numberOfStepsPerDay)
 ```
 
 
