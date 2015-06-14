@@ -42,6 +42,7 @@ str(activityData)
 ## Calculate the total number of steps taken per day
 ```{r calcStepsPerDay, cache=TRUE}
 numberOfStepsPerDay <- tapply(activityData$steps, activityData$date, sum, na.rm = TRUE)
+numberOfStepsPerDay
 ```
 
 ## Histogram of the total number of steps taken each day
@@ -51,10 +52,13 @@ hist(numberOfStepsPerDay, main="Histogram of the total number of steps taken eac
 
 ## Calculate and report the mean and median of the total number of steps taken per day
 ```{r calcMeanMedianNumSteps, cache=TRUE}
-# Using summary here to include values showing dispersion
-summary(numberOfStepsPerDay)
+numberOfStepsPerDay.mean <- mean(numberOfStepsPerDay,na.rm = TRUE)
+numberOfStepsPerDay.mean
+numberOfStepsPerDay.median <- median(numberOfStepsPerDay,na.rm = TRUE)
+numberOfStepsPerDay.median
 # Also including std dev
-sd(numberOfStepsPerDay)
+numberOfStepsPerDay.sd <- sd(numberOfStepsPerDay)
+numberOfStepsPerDay.sd
 ```
 
 # Show the average daily activity pattern
@@ -80,9 +84,71 @@ intervalName <- names(avgDailySteps[names(avgDailySteps)[which.max(as.numeric(av
 match(intervalName,names(avgDailySteps))
 ```
 
-
 # Inputing missing values
+## The total number of missing values in the dataset (i.e. the total number of rows with NAs) -- and :
+```{r numNa, cache=TRUE}
+numNas <- sum(is.na(activityData))
+timeprint(numNas)
+```
+## Percentage of missing values (not asked for but of interest)
+```{r pctNa, cache=TRUE}
+pctNas <- numNas/nrow(activityData)
+timeprint(paste0(formatC(100 * pctNas, format="f", digits = 1), "%"))
+```
 
+## Devise a strategy and fill in all missing values in the dataset. 
 
+Here, the strategy is to use the mean per day values to impute the means. The method is based on [a comment by Hadley Wickham](http://www.mail-archive.com/r-help@r-project.org/msg58289.html).
+``` {r fillMissing, cache=TRUE}
+impute.mean <- function(x) replace(x, is.na(x), mean(x, na.rm = TRUE))   # from Hadley Wickham's comment
+library(plyr)
+activityData.naCorrectedByDailyMeans <- ddply(activityData, ~ date, transform, steps = impute.mean(steps))
+activityData.naCorrectedByDailyMeans$steps[is.na(activityData.naCorrectedByDailyMeans$steps)] <- 0  # This corrects any days that have no recordings
+```
+
+## Histogram of total number of steps taken each day 
+
+```{r calcStepsPerDayNaCorrected, cache=TRUE}
+numberOfStepsPerDay.naCorrectedByDailyMeans <- tapply(activityData.naCorrectedByDailyMeans$steps, activityData.naCorrectedByDailyMeans$date, sum)
+hist(numberOfStepsPerDay.naCorrectedByDailyMeans, main="Histogram for NAs corrected by means per day", xlab="Number of steps per day", breaks=25)
+```
+
+## Calculate and report the mean and median total number of steps taken per day. 
+
+```{r calcStatsCorrected, cache=TRUE}
+numberOfStepsPerDay.naCorrectedByDailyMeans.mean <- mean(numberOfStepsPerDay.naCorrectedByDailyMeans,na.rm = TRUE)
+numberOfStepsPerDay.naCorrectedByDailyMeans.mean
+numberOfStepsPerDay.naCorrectedByDailyMeans.median <- median(numberOfStepsPerDay.naCorrectedByDailyMeans,na.rm = TRUE)
+numberOfStepsPerDay.naCorrectedByDailyMeans.median
+# Also including std dev
+numberOfStepsPerDay.naCorrectedByDailyMeans.sd <- sd(numberOfStepsPerDay)
+numberOfStepsPerDay.naCorrectedByDailyMeans.sd
+```
+
+## Differences of imputed values from first part of assignment estimates
+```{r calcDiffs, cache=TRUE}
+numberOfStepsPerDay.mean - numberOfStepsPerDay.naCorrectedByDailyMeans.mean
+numberOfStepsPerDay.median - numberOfStepsPerDay.naCorrectedByDailyMeans.median
+numberOfStepsPerDay.sd - numberOfStepsPerDay.naCorrectedByDailyMeans.sd
+pctDifMean <- numberOfStepsPerDay.mean / numberOfStepsPerDay.naCorrectedByDailyMeans.mean
+pctDifMedian <- numberOfStepsPerDay.median / numberOfStepsPerDay.naCorrectedByDailyMeans.median
+pctDifMean <- paste0(formatC(100 * (1- pctDifMean), format="f", digits = 1), "%")
+pctDifMedian <- paste0(formatC(100 * (1- pctDifMedian), format="f", digits = 1), "%")
+```
+
+The imputed mean and median are slightly higher (`r pctDifMean` and `r pctDifMedian` respectively), and closer together. There is no impact on stad. dev.
+
+## What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+There is no impact. This is known from examining the differences between numberOfStepsPerDay.naCorrectedByDailyMeans and numberOfStepsPerDay: `r sapply(numberOfStepsPerDay.naCorrectedByDailyMeans - numberOfStepsPerDay, sum, na.rm = TRUE)`.
 
 # Are there differences in activity patterns between weekdays and weekends?
+## Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
+```{r calcDates, cache=TRUE}
+activityData$dayType = ifelse(weekdays(as.POSIXlt(activityData$date)) == c("Saturday","Sunday"), "weekend", "weekday")
+
+```
+
+## Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
+Todo
+
