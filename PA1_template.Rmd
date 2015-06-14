@@ -46,18 +46,39 @@ numberOfStepsPerDay <- tapply(activityData$steps, activityData$date, sum, na.rm 
 
 ## Histogram of the total number of steps taken each day
 ```{r doHistNumSteps, cache=TRUE}
-hist(numberOfStepsPerDay)
+hist(numberOfStepsPerDay, main="Histogram of the total number of steps taken each day", xlab="Number of steps per day", breaks=25)
 ```
 
 ## Calculate and report the mean and median of the total number of steps taken per day
 ```{r calcMeanMedianNumSteps, cache=TRUE}
-mean(numberOfStepsPerDay)
-median(numberOfStepsPerDay)
+# Using summary here to include values showing dispersion
+summary(numberOfStepsPerDay)
+# Also including std dev
+sd(numberOfStepsPerDay)
 ```
 
+# Show the average daily activity pattern
 
-# What is the average daily activity pattern?
+## Present a time series plot of the 5-minute interval and the average number of steps taken, averaged across all days
+```{r tsNumSteps, cache=TRUE}
+avgDailySteps <- tapply(activityData$steps, activityData$interval, mean, na.rm = TRUE)
+plot(c(1:288),avgDailySteps, type="l", main = "Average number of steps per daily five minute interval", xlab="5 minute time interval", ylab="Average number of steps per daily interval")
+abline(v=0, col = 2, lty="dotted")
+text(0,200, "Midnight", col = 2, adj = c(-.1, -.1))
+abline(v=72, col = 2, lty="dotted")
+text(72,200, "06:00", col = 2, adj = c(-.1, -.1))
+abline(v=144, col = 2, lty="dotted")
+text(144,200, "Midday", col = 2, adj = c(-.1, -.1))
+abline(v=216, col = 2, lty="dotted")
+text(216,200, "18:00", col = 2, adj = c(-.1, -.1))
+abline(v=288, col = 2, lty="dotted")
+```
 
+## The 5-minute interval, on average across all the days in the dataset, containing the maximum number of steps:
+```{r intervalWithMaxNumSteps, cache=TRUE}
+intervalName <- names(avgDailySteps[names(avgDailySteps)[which.max(as.numeric(avgDailySteps))]])
+match(intervalName,names(avgDailySteps))
+```
 
 
 # Inputing missing values
