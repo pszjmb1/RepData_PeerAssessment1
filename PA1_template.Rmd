@@ -150,5 +150,34 @@ activityData$dayType = ifelse(weekdays(as.POSIXlt(activityData$date)) == c("Satu
 ```
 
 ## Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
-Todo
+```{r panel, cache=TRUE}
+avgDailySteps.weekday <- tapply(activityData$steps[activityData$dayType == "weekday"], activityData$interval[activityData$dayType == "weekday"], mean, na.rm = TRUE)
+avgDailySteps.weekend <- tapply(activityData$steps[activityData$dayType == "weekend"], activityData$interval[activityData$dayType == "weekend"], mean, na.rm = TRUE)
+
+oldpar <- par(mfrow=c(2,1), mar=c(3,3,1,1), oma=c(0,0,3,1))  ## oma creates space 
+plot(c(1:288),avgDailySteps.weekday, type="l", main = "Weekday avg. num of steps / five min interval", xlab="5 min interval", ylab="Avg. num. of steps / interval")
+abline(v=0, col = 2, lty="dotted")
+text(0,200, "Midnight", col = 2, adj = c(-.1, -.1))
+abline(v=72, col = 2, lty="dotted")
+text(72,200, "06:00", col = 2, adj = c(-.1, -.1))
+abline(v=144, col = 2, lty="dotted")
+text(144,200, "Midday", col = 2, adj = c(-.1, -.1))
+abline(v=216, col = 2, lty="dotted")
+text(216,200, "18:00", col = 2, adj = c(-.1, -.1))
+abline(v=288, col = 2, lty="dotted")
+
+plot(c(1:288),avgDailySteps.weekend, type="l", main = "Weekend avg. num of steps / five min interval", xlab="5 min interval", ylab="Avg. num. of steps / interval")
+abline(v=0, col = 2, lty="dotted")
+text(0,200, "Midnight", col = 2, adj = c(-.1, -.1))
+abline(v=72, col = 2, lty="dotted")
+text(72,200, "06:00", col = 2, adj = c(-.1, -.1))
+abline(v=144, col = 2, lty="dotted")
+text(144,200, "Midday", col = 2, adj = c(-.1, -.1))
+abline(v=216, col = 2, lty="dotted")
+text(216,200, "18:00", col = 2, adj = c(-.1, -.1))
+abline(v=288, col = 2, lty="dotted")
+
+mtext("Weekday - Weekend comparison", side=3, line=1, outer=TRUE, cex=2, font=2)
+par(oldpar)
+```
 
